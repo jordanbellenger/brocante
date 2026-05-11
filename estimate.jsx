@@ -192,7 +192,7 @@ export function EstimatePage({ onToast, onAddToInventory }) {
             onAddToInventory={() => {
               onAddToInventory({
                 name: result.name,
-                priceCents: (result.mid || 0) * 100,
+                priceCents: (result.low || result.mid || 0) * 100,
                 photo: result.photo,
                 notes: result.why || "",
               });
@@ -236,7 +236,7 @@ export function EstimatePage({ onToast, onAddToInventory }) {
                   onAddToInventory={() => {
                     onAddToInventory({
                       name: h.name,
-                      priceCents: (h.mid || 0) * 100,
+                      priceCents: (h.low || h.mid || 0) * 100,
                       photo: h.photo,
                       notes: h.why || "",
                     });
