@@ -137,7 +137,7 @@ export function RegisterPage({ onToast, prefill, onPrefillConsumed, onItemSold }
         </button>
       </div>
 
-      <div className="page">
+      <div className="page register-page">
         {stage === "price" && (
           <PriceStage
             title={title} setTitle={setTitle}
@@ -195,7 +195,7 @@ function PriceStage({ title, setTitle, priceDigits, pressKey, onValidate }) {
       <div className="section">
         <label className="label">Prix de vente</label>
         <div
-          className="card center"
+          className="card center register-amount-card"
           style={{ padding: "26px 18px", display: "flex", flexDirection: "column", gap: 4 }}
         >
           <div className="amount amount-huge" style={{ color: priceDigits ? "var(--ink)" : "var(--ink-faint)" }}>
@@ -226,7 +226,7 @@ function TenderedStage({ title, priceCents, tenderedDigits, tenderedCents, chang
   return (
     <>
       {/* Top: client gives, change due */}
-      <div className="card" style={{ padding: 18 }}>
+      <div className="card register-summary-card" style={{ padding: 18 }}>
         <div className="hstack" style={{ justifyContent: "space-between", fontSize: 14 }}>
           <span className="muted">{title || "Objet"}</span>
           <span className="amount" style={{ fontWeight: 700 }}>{formatEur(priceCents)}</span>
@@ -240,7 +240,7 @@ function TenderedStage({ title, priceCents, tenderedDigits, tenderedCents, chang
       </div>
 
       {/* Change due — hero */}
-      <div className="card mt-4 center" style={{
+      <div className="card mt-4 center register-change-card" style={{
         background: enough && changeCents > 0 ? "var(--accent-soft)" : "var(--surface)",
         borderColor: enough && changeCents > 0 ? "var(--accent-soft)" : "var(--line)",
         padding: "22px 18px",
@@ -274,7 +274,7 @@ function TenderedStage({ title, priceCents, tenderedDigits, tenderedCents, chang
       </div>
 
       {/* Bill shortcuts */}
-      <div className="section mt-4">
+      <div className="section mt-4 register-bills-section">
         <div className="label">Billets &amp; pièces</div>
         <div className="bills">
           {[500, 1000, 2000, 5000, 100, 200, 10000, 20000].map(c => (
@@ -285,11 +285,11 @@ function TenderedStage({ title, priceCents, tenderedDigits, tenderedCents, chang
         </div>
       </div>
 
-      <div className="section">
+      <div className="section register-keypad-section">
         <Keypad onPress={pressKey} />
       </div>
 
-      <div className="hstack mt-4" style={{ gap: 8 }}>
+      <div className="hstack mt-4 register-actions" style={{ gap: 8 }}>
         <button className="btn btn-ghost" onClick={onBack} style={{ flex: "0 0 auto", padding: "0 18px" }}>
           <Icon.Back />
         </button>

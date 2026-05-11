@@ -717,3 +717,47 @@ body {
 [data-numstyle="mono"] .amount { font-family: var(--font-mono); }
 [data-numstyle="display"] .amount { font-family: var(--font-ui); font-weight: 700; letter-spacing: -0.04em; }
 [data-numstyle="display"] .amount-huge { font-size: 80px; }
+
+@media (max-width: 420px), (max-height: 760px) {
+  :root { --pad-x: 14px; --btn-h: 56px; }
+  .app-header { padding: 14px var(--pad-x) 10px; }
+  .app-header h1 { font-size: 24px; }
+  .app-header .pill { font-size: 12px; padding: 3px 8px; }
+  .page { padding: 12px var(--pad-x) 86px; }
+  .section + .section { margin-top: 16px; }
+  .input, .textarea { font-size: 16px; padding: 12px 14px; }
+  .btn-xl { height: 62px; font-size: 18px; border-radius: var(--radius); }
+  .tab { padding: 7px 6px 6px; font-size: 12px; }
+  .tab svg { width: 22px; height: 22px; }
+  .tabbar { padding-top: 6px; gap: 4px; }
+}
+
+@media (max-width: 420px), (max-height: 760px) {
+  .register-page { padding-bottom: 82px; }
+  .register-page .card { border-radius: var(--radius); }
+  .register-amount-card { padding: 16px 12px !important; }
+  .register-summary-card { padding: 12px 14px !important; }
+  .register-change-card { padding: 14px 12px !important; }
+  .register-bills-section { margin-top: 12px !important; }
+  .register-keypad-section { margin-top: 12px !important; }
+  .register-actions { margin-top: 12px !important; }
+  .amount-huge { font-size: 52px; }
+  [data-numstyle="display"] .amount-huge { font-size: 58px; }
+  .keypad { gap: 7px; }
+  .key { height: 52px; font-size: 24px; border-radius: 11px; }
+  .bills { gap: 6px; }
+  .bill { height: 40px; font-size: 14px; border-radius: 10px; }
+  .chip { padding: 3px 8px; font-size: 11px; }
+}
+
+@media (max-height: 680px) {
+  .register-page { padding-top: 8px; }
+  .register-page .label { margin-bottom: 4px; }
+  .register-summary-card .hstack { font-size: 13px !important; }
+  .register-change-card .mt-3 { margin-top: 8px; }
+  .amount-huge { font-size: 46px; }
+  [data-numstyle="display"] .amount-huge { font-size: 50px; }
+  .key { height: 46px; font-size: 22px; }
+  .bill { height: 36px; font-size: 13px; }
+  .btn-xl { height: 56px; }
+}
