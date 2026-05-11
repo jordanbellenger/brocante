@@ -310,6 +310,7 @@ function App() {
           teams={teams}
           activeTeamId={activeTeamId}
           onSelect={setActiveTeamId}
+          onToast={showToast}
           onCreate={async (name) => {
             const team = await createTeam(name);
             await refreshTeams(team.id);
@@ -411,7 +412,8 @@ function TeamScreen({ onToast, onCreate, onJoin, onSignOut }) {
   );
 }
 
-function TeamOverlay({ teams, activeTeamId, onSelect, onCreate, onJoin, onSignOut, onClose }) {
+function TeamOverlay({ teams, activeTeamId, onSelect, onToast, onCreate, onJoin, onSignOut, onClose }) {
+  const activeTeam = teams.find((team) => team.id === activeTeamId);
   return (
     <div className="overlay" onClick={onClose}>
       <div className="overlay-card" onClick={(e) => e.stopPropagation()} style={{ maxHeight: "88vh", overflowY: "auto" }}>
@@ -435,8 +437,59 @@ function TeamOverlay({ teams, activeTeamId, onSelect, onCreate, onJoin, onSignOu
             </button>
           ))}
         </div>
+        {activeTeam && (
+          <InviteCard
+            team={activeTeam}
+            onToast={onToast}
+          />
+        )}
         <TeamActions onCreate={onCreate} onJoin={onJoin} />
         <button className="btn btn-danger btn-block mt-4" onClick={onSignOut}>Se déconnecter</button>
+      </div>
+    </div>
+  );
+}
+
+function InviteCard({ team, onToast }) {
+  const inviteText = `Rejoins mon équipe Brocante "${team.name}" avec le code : ${team.invite_code}`;
+
+  const copyInvite = async () => {
+    try {
+      await navigator.clipboard.writeText(team.invite_code);
+      onToast && onToast("Code copié");
+    } catch (error) {
+      onToast && onToast(`Code équipe : ${team.invite_code}`);
+    }
+  };
+
+  const shareInvite = async () => {
+    if (!navigator.share) {
+      await copyInvite();
+      return;
+    }
+    try {
+      await navigator.share({
+        title: "Invitation Brocante",
+        text: inviteText,
+        url: window.location.origin,
+      });
+    } catch (error) {}
+  };
+
+  return (
+    <div className="invite-card section">
+      <div>
+        <div className="label">Inviter quelqu'un</div>
+        <div className="invite-code">{team.invite_code}</div>
+        <p className="muted">Partage ce code. La personne pourra rejoindre ton inventaire depuis l'écran Équipe.</p>
+      </div>
+      <div className="hstack" style={{ gap: 8 }}>
+        <button className="btn btn-ghost btn-sm" onClick={copyInvite} style={{ flex: 1 }}>
+          Copier
+        </button>
+        <button className="btn btn-primary btn-sm" onClick={shareInvite} style={{ flex: 1 }}>
+          Partager
+        </button>
       </div>
     </div>
   );

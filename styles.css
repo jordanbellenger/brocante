@@ -357,6 +357,23 @@ body {
   font-size: 12px;
 }
 .team-row svg { width: 18px; height: 18px; color: var(--accent); }
+.invite-card {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.invite-card p {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+.invite-code {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
 
 /* Inputs */
 .input, .textarea {
