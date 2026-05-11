@@ -59,7 +59,19 @@ export function EstimatePage({ onToast, onAddToInventory }) {
     }
     setLoading(true); setResult(null);
     try {
-      const parsed = estimateLocally({ name, notes, hasPhoto: !!photo });
+      let parsed;
+      try {
+        const response = await fetch("/api/estimate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ photo, name, notes }),
+        });
+        if (!response.ok) throw new Error("OpenAI indisponible");
+        parsed = await response.json();
+      } catch (error) {
+        parsed = estimateLocally({ name, notes, hasPhoto: !!photo });
+        onToast("Estimation locale utilisée");
+      }
       const safeNum = (v) => Math.max(0, Math.round(Number(v) || 0));
       const lo = safeNum(parsed.low);
       const mi = safeNum(parsed.mid);

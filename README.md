@@ -31,6 +31,19 @@ VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-or-anon-key
 
 Sans ces variables, l'application reste en mode local.
 
+## Estimation OpenAI
+
+L'estimation utilise OpenAI si `OPENAI_API_KEY` est présente côté serveur. La clé ne doit jamais être exposée avec un préfixe `VITE_`, sinon elle serait lisible dans le navigateur.
+
+Ajouter dans `.env` :
+
+```bash
+OPENAI_API_KEY=sk-your-openai-api-key
+OPENAI_MODEL=gpt-5-mini
+```
+
+Avec `npm run dev`, l'application lance `server.js`, qui expose `/api/estimate` et sert l'app Vite. Si la clé manque ou si l'appel API échoue, l'app repasse sur l'estimation locale.
+
 ## Build
 
 ```bash
