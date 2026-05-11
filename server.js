@@ -64,6 +64,7 @@ Contraintes :
 - fourchette volontairement prudente, plus basse qu'une annonce en ligne ;
 - "mid" doit être un prix conseillé pour vendre rapidement, proche du bas de la fourchette ;
 - si l'identification est incertaine, donner une fourchette large ;
+- "why" doit tenir en une phrase courte, maximum 90 caractères ;
 - réponse JSON strictement conforme au schéma.
 
 Nom saisi : ${name || "non renseigné"}
@@ -106,7 +107,7 @@ function normalizeEstimate(estimate) {
     mid,
     high,
     confidence: ["faible", "moyenne", "élevée"].includes(estimate.confidence) ? estimate.confidence : "moyenne",
-    why: why.length > 150 ? `${why.slice(0, 147).trim()}...` : why,
+    why: why.length > 90 ? `${why.slice(0, 87).trim()}...` : why,
   };
 }
 
