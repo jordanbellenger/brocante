@@ -1,6 +1,12 @@
 # Brocante
 
-## Français
+AI-assisted flea-market inventory and checkout app with Supabase team sharing.
+
+🇫🇷 [Français](#-français) · 🇬🇧 [English](#-english)
+
+---
+
+## 🇫🇷 Français
 
 Application React pour gérer une petite brocante :
 
@@ -73,7 +79,7 @@ npm run build
 
 ---
 
-## English
+## 🇬🇧 English
 
 React app for managing a small flea-market inventory:
 
