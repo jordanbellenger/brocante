@@ -55,13 +55,14 @@ async function estimateWithOpenAI({ photo, name = "", notes = "" }) {
   const content = [
     {
       type: "input_text",
-      text: `Estime un prix de vente réaliste en brocante / vide-grenier en France.
+      text: `Estime un prix de vente réaliste en brocante / vide-grenier en France, en privilégiant une vente facile.
 
 Contraintes :
 - trouve un titre court et vendable pour l'objet dans "name" ;
 - prix en euros entiers ;
 - objet d'occasion, pas prix neuf ;
-- fourchette basse/milieu/haute adaptée à une vente rapide ;
+- fourchette volontairement prudente, plus basse qu'une annonce en ligne ;
+- "mid" doit être un prix conseillé pour vendre rapidement, proche du bas de la fourchette ;
 - si l'identification est incertaine, donner une fourchette large ;
 - réponse JSON strictement conforme au schéma.
 
@@ -92,8 +93,11 @@ Notes : ${notes || "aucune"}`,
 
 function normalizeEstimate(estimate) {
   const low = Math.max(0, Math.round(Number(estimate.low) || 0));
-  const mid = Math.max(low, Math.round(Number(estimate.mid) || low));
-  const high = Math.max(mid, Math.round(Number(estimate.high) || mid));
+  const rawMid = Math.max(low, Math.round(Number(estimate.mid) || low));
+  const rawHigh = Math.max(rawMid, Math.round(Number(estimate.high) || rawMid));
+  const quickSaleMid = low + Math.round((rawHigh - low) * 0.35);
+  const mid = Math.max(low, Math.min(rawMid, quickSaleMid));
+  const high = Math.max(mid, rawHigh);
   const why = String(estimate.why || "").trim();
 
   return {
