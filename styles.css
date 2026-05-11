@@ -440,6 +440,7 @@ body {
 .row-title { font-weight: 600; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row-sub { font-size: 13px; color: var(--ink-soft); }
 .row-amount { font-family: var(--font-mono); font-weight: 600; font-size: 18px; }
+.min-price { color: var(--warn); font-weight: 600; }
 
 /* Photo dropzone */
 .dropzone {

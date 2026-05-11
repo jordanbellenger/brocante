@@ -64,7 +64,8 @@ Contraintes :
 - fourchette volontairement prudente, plus basse qu'une annonce en ligne ;
 - "mid" doit être un prix conseillé pour vendre rapidement, proche du bas de la fourchette ;
 - si l'identification est incertaine, donner une fourchette large ;
-- "why" doit tenir en une phrase courte, maximum 90 caractères ;
+- "why" doit seulement décrire l'objet visible ou supposé, en une phrase de 90 caractères max ;
+- "why" ne doit jamais mentionner vente, prix, estimation, brocante ou rapidité de vente ;
 - réponse JSON strictement conforme au schéma.
 
 Nom saisi : ${name || "non renseigné"}
@@ -99,7 +100,7 @@ function normalizeEstimate(estimate) {
   const quickSaleMid = low + Math.round((rawHigh - low) * 0.35);
   const mid = Math.max(low, Math.min(rawMid, quickSaleMid));
   const high = Math.max(mid, rawHigh);
-  const why = String(estimate.why || "").trim();
+  const why = cleanObjectDescription(estimate.why);
 
   return {
     name: String(estimate.name || "Objet de brocante").trim().slice(0, 48),
@@ -109,6 +110,13 @@ function normalizeEstimate(estimate) {
     confidence: ["faible", "moyenne", "élevée"].includes(estimate.confidence) ? estimate.confidence : "moyenne",
     why: why.length > 90 ? `${why.slice(0, 87).trim()}...` : why,
   };
+}
+
+function cleanObjectDescription(value) {
+  let text = String(value || "").trim();
+  const forbidden = /\b(vente|vendre|vend|vendu|prix|estimation|estime|estimé|brocante|vide-grenier|rapide|rapidement|fourchette)\b/i;
+  if (!text || forbidden.test(text)) return "Description courte de l'objet à confirmer.";
+  return text;
 }
 
 const vite = await createViteServer({

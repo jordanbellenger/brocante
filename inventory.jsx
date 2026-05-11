@@ -154,7 +154,7 @@ function InventoryRow({ item, onSell, onEdit, onDelete }) {
             ) : (
               <>
                 <span className="amount" style={{ fontWeight: 600, color: "var(--ink)" }}>{formatEur(item.priceCents)}</span>
-                <span className="faint"> · min {formatEur(item.minPriceCents || item.priceCents || 0)}</span>
+                <span className="min-price"> · min {formatEur(item.minPriceCents || item.priceCents || 0)}</span>
                 {item.notes && <span className="faint"> · {item.notes}</span>}
               </>
             )}
