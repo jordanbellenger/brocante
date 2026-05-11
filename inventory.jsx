@@ -154,6 +154,7 @@ function InventoryRow({ item, onSell, onEdit, onDelete }) {
             ) : (
               <>
                 <span className="amount" style={{ fontWeight: 600, color: "var(--ink)" }}>{formatEur(item.priceCents)}</span>
+                <span className="faint"> · min {formatEur(item.minPriceCents || item.priceCents || 0)}</span>
                 {item.notes && <span className="faint"> · {item.notes}</span>}
               </>
             )}
@@ -186,6 +187,7 @@ function InventoryRow({ item, onSell, onEdit, onDelete }) {
 export function InventoryEditor({ item, onSave, onClose }) {
   const [name, setName] = React.useState(item?.name || "");
   const [priceDigits, setPriceDigits] = React.useState(item ? String(item.priceCents || "") : "");
+  const [minPriceDigits, setMinPriceDigits] = React.useState(item ? String(item.minPriceCents || item.priceCents || "") : "");
   const [notes, setNotes] = React.useState(item?.notes || "");
   const [photo, setPhoto] = React.useState(item?.photo || null);
   const fileRef = React.useRef(null);
@@ -213,6 +215,7 @@ export function InventoryEditor({ item, onSave, onClose }) {
       ts: item?.ts || Date.now(),
       name: name.trim(),
       priceCents: digitsToCents(priceDigits),
+      minPriceCents: digitsToCents(minPriceDigits || priceDigits),
       notes: notes.trim(),
       photo,
       status: item?.status || "available",
@@ -259,7 +262,7 @@ export function InventoryEditor({ item, onSave, onClose }) {
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="ex : Vase en cristal" autoFocus />
         </div>
         <div className="mt-3">
-          <label className="label">Prix de vente (€)</label>
+          <label className="label">Prix conseillé (€)</label>
           <input
             className="input"
             inputMode="numeric"
@@ -267,6 +270,19 @@ export function InventoryEditor({ item, onSave, onClose }) {
             onChange={(e) => {
               const d = e.target.value.replace(/\D/g, "");
               setPriceDigits(d.replace(/^0+(?=\d)/, "").slice(0, 7));
+            }}
+            placeholder="0,00 €"
+          />
+        </div>
+        <div className="mt-3">
+          <label className="label">Prix minimum (€)</label>
+          <input
+            className="input"
+            inputMode="numeric"
+            value={minPriceDigits ? formatDigitsAsEur(minPriceDigits) : ""}
+            onChange={(e) => {
+              const d = e.target.value.replace(/\D/g, "");
+              setMinPriceDigits(d.replace(/^0+(?=\d)/, "").slice(0, 7));
             }}
             placeholder="0,00 €"
           />

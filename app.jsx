@@ -108,6 +108,7 @@ function App() {
       ts: Date.now(),
       name: data.name || "Objet",
       priceCents: data.priceCents || 0,
+      minPriceCents: data.minPriceCents || data.priceCents || 0,
       photo: data.photo || null,
       notes: data.notes || "",
       status: "available",

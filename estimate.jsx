@@ -199,7 +199,8 @@ export function EstimatePage({ inventory = [], onToast, onAddToInventory }) {
             onAddToInventory={() => {
               const added = onAddToInventory({
                 name: result.name,
-                priceCents: (result.low || result.mid || 0) * 100,
+                priceCents: (result.mid || result.low || 0) * 100,
+                minPriceCents: (result.low || result.mid || 0) * 100,
                 photo: result.photo,
                 notes: result.why || "",
               });
@@ -244,7 +245,8 @@ export function EstimatePage({ inventory = [], onToast, onAddToInventory }) {
                   onAddToInventory={() => {
                     const added = onAddToInventory({
                       name: h.name,
-                      priceCents: (h.low || h.mid || 0) * 100,
+                      priceCents: (h.mid || h.low || 0) * 100,
+                      minPriceCents: (h.low || h.mid || 0) * 100,
                       photo: h.photo,
                       notes: h.why || "",
                     });
