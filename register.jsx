@@ -363,10 +363,9 @@ function Keypad({ onPress }) {
       {keys.map((k, i) => (
         <button
           key={i}
+          type="button"
           className={`key ${k.k === "back" ? "key-back" : ""}`}
           onClick={() => onPress(k.k)}
-          onTouchStart={(e) => e.currentTarget.style.background = "var(--surface-2)"}
-          onTouchEnd={(e) => e.currentTarget.style.background = ""}
         >
           {k.k === "back" ? <Icon.Back style={{ width: 22, height: 22 }} /> : k.k}
         </button>

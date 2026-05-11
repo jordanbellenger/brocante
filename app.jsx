@@ -41,14 +41,12 @@ function App() {
       return TWEAK_DEFAULTS;
     }
   });
-  const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [inventory, setInventoryState] = React.useState(() => loadList(STORAGE_KEYS.inventory));
   const [syncState, setSyncState] = React.useState(() => isSupabaseConfigured ? "team" : "local");
   const [session, setSession] = React.useState(null);
   const [authReady, setAuthReady] = React.useState(!isSupabaseConfigured);
   const [teams, setTeams] = React.useState([]);
   const [activeTeamId, setActiveTeamIdState] = React.useState(() => getActiveTeamId());
-  const [teamPanelOpen, setTeamPanelOpen] = React.useState(false);
   const [prefillSale, setPrefillSale] = React.useState(null);
 
   const updateInventory = (next) => {
@@ -214,7 +212,7 @@ function App() {
     updateInventory(next);
   };
 
-  const screenLabel = tab === "estimate" ? "01 Estimer" : tab === "inventory" ? "02 Inventaire" : "03 Caisse";
+  const screenLabel = tab === "estimate" ? "01 Estimer" : tab === "inventory" ? "02 Inventaire" : tab === "register" ? "03 Caisse" : "04 Plus";
   const activeTeam = teams.find((team) => team.id === activeTeamId);
 
   if (!authReady) return <div className="auth-screen"><div className="spinner" /></div>;
@@ -266,9 +264,34 @@ function App() {
             onItemSold={markItemSold}
           />
         )}
+        {tab === "more" && (
+          <MorePage
+            teams={teams}
+            activeTeamId={activeTeamId}
+            activeTeam={activeTeam}
+            tweaks={tweaks}
+            onTweakChange={(edits) => setTweaks((cur) => ({ ...cur, ...edits }))}
+            onSelectTeam={setActiveTeamId}
+            onToast={showToast}
+            onCreateTeam={async (name) => {
+              const team = await createTeam(name);
+              await refreshTeams(team.id);
+              showToast("Équipe créée");
+            }}
+            onJoinTeam={async (code) => {
+              const team = await joinTeam(code);
+              await refreshTeams(team.id);
+              showToast("Équipe rejointe");
+            }}
+            onSignOut={async () => {
+              await signOut();
+              setSession(null);
+            }}
+          />
+        )}
       </div>
 
-      <nav className="tabbar tabbar-3" role="tablist">
+      <nav className="tabbar tabbar-4" role="tablist">
         <button className="tab" aria-current={tab === "estimate"} onClick={() => setTab("estimate")}>
           <Icon.Sparkles />
           Estimer
@@ -281,65 +304,15 @@ function App() {
           <Icon.Cash />
           Caisse
         </button>
+        <button className="tab" aria-current={tab === "more"} onClick={() => setTab("more")}>
+          <Icon.Edit />
+          Plus
+        </button>
       </nav>
 
       {toast && <div className="toast">{toast}</div>}
-
-      <div className={`sync-badge sync-${syncState}`} title={getSyncLabel(syncState)} aria-label={getSyncLabel(syncState)}>
-        <span className="sync-dot" />
-      </div>
-
-      <button className="team-fab" onClick={() => setTeamPanelOpen(true)} aria-label="Équipe">
-        {activeTeam?.name?.slice(0, 2).toUpperCase() || "EQ"}
-      </button>
-
-      <button className="settings-fab" onClick={() => setSettingsOpen(true)} aria-label="Réglages">
-        <Icon.Edit />
-      </button>
-
-      {settingsOpen && (
-        <SettingsOverlay
-          tweaks={tweaks}
-          onChange={(edits) => setTweaks((cur) => ({ ...cur, ...edits }))}
-          onClose={() => setSettingsOpen(false)}
-        />
-      )}
-
-      {teamPanelOpen && (
-        <TeamOverlay
-          teams={teams}
-          activeTeamId={activeTeamId}
-          onSelect={setActiveTeamId}
-          onToast={showToast}
-          onCreate={async (name) => {
-            const team = await createTeam(name);
-            await refreshTeams(team.id);
-            showToast("Équipe créée");
-          }}
-          onJoin={async (code) => {
-            const team = await joinTeam(code);
-            await refreshTeams(team.id);
-            showToast("Équipe rejointe");
-          }}
-          onSignOut={async () => {
-            await signOut();
-            setSession(null);
-            setTeamPanelOpen(false);
-          }}
-          onClose={() => setTeamPanelOpen(false)}
-        />
-      )}
     </>
   );
-}
-
-function getSyncLabel(syncState) {
-  if (syncState === "online") return "Base de données synchronisée";
-  if (syncState === "syncing") return "Synchronisation base en cours";
-  if (syncState === "auth") return "Connexion requise";
-  if (syncState === "team") return "Équipe requise";
-  if (syncState === "error") return "Erreur de synchronisation base";
-  return "Synchronisation base désactivée";
 }
 
 function AuthScreen({ onToast, onSignedIn }) {
@@ -412,22 +385,22 @@ function TeamScreen({ onToast, onCreate, onJoin, onSignOut }) {
   );
 }
 
-function TeamOverlay({ teams, activeTeamId, onSelect, onToast, onCreate, onJoin, onSignOut, onClose }) {
-  const activeTeam = teams.find((team) => team.id === activeTeamId);
+function MorePage({ teams, activeTeamId, activeTeam, tweaks, onTweakChange, onSelectTeam, onToast, onCreateTeam, onJoinTeam, onSignOut }) {
   return (
-    <div className="overlay" onClick={onClose}>
-      <div className="overlay-card" onClick={(e) => e.stopPropagation()} style={{ maxHeight: "88vh", overflowY: "auto" }}>
-        <div className="hstack" style={{ justifyContent: "space-between", marginBottom: 14 }}>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Équipe</h2>
-          <button className="btn btn-sm btn-ghost" onClick={onClose} aria-label="Fermer"><Icon.Close /></button>
-        </div>
+    <>
+      <div className="app-header">
+        <h1>Plus</h1>
+        <span className="pill">{activeTeam?.name || "Équipe"}</span>
+      </div>
+      <div className="page">
         <div className="section">
+          <div className="section-title">Équipe</div>
           {teams.map((team) => (
             <button
               key={team.id}
               className="team-row"
               aria-current={team.id === activeTeamId}
-              onClick={() => onSelect(team.id)}
+              onClick={() => onSelectTeam(team.id)}
             >
               <span>
                 <strong>{team.name}</strong>
@@ -443,10 +416,14 @@ function TeamOverlay({ teams, activeTeamId, onSelect, onToast, onCreate, onJoin,
             onToast={onToast}
           />
         )}
-        <TeamActions onCreate={onCreate} onJoin={onJoin} />
+        <TeamActions onToast={onToast} onCreate={onCreateTeam} onJoin={onJoinTeam} />
+        <div className="section">
+          <div className="section-title">Réglages</div>
+          <SettingsContent tweaks={tweaks} onChange={onTweakChange} />
+        </div>
         <button className="btn btn-danger btn-block mt-4" onClick={onSignOut}>Se déconnecter</button>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -554,7 +531,7 @@ function getTeamErrorMessage(error) {
   return message || "Action équipe impossible.";
 }
 
-function SettingsOverlay({ tweaks, onChange, onClose }) {
+function SettingsContent({ tweaks, onChange }) {
   const themes = [
     { value: "cream", label: "Crème" },
     { value: "forest", label: "Forêt" },
@@ -566,46 +543,37 @@ function SettingsOverlay({ tweaks, onChange, onClose }) {
     { value: "airy", label: "Aéré" },
   ];
   return (
-    <div className="overlay" onClick={onClose}>
-      <div className="overlay-card" onClick={(e) => e.stopPropagation()}>
-        <div className="hstack" style={{ justifyContent: "space-between", marginBottom: 14 }}>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Réglages</h2>
-          <button className="btn btn-sm btn-ghost" onClick={onClose} aria-label="Fermer">
-            <Icon.Close />
-          </button>
-        </div>
-
-        <div className="section">
-          <div className="label">Palette</div>
-          <div className="segmented">
-            {themes.map((theme) => (
-              <button key={theme.value} className="segment" aria-current={tweaks.theme === theme.value} onClick={() => onChange({ theme: theme.value })}>
-                {theme.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="section">
-          <div className="label">Densité</div>
-          <div className="segmented">
-            {densities.map((density) => (
-              <button key={density.value} className="segment" aria-current={tweaks.density === density.value} onClick={() => onChange({ density: density.value })}>
-                {density.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="section">
-          <div className="label">Chiffres</div>
-          <div className="segmented">
-            <button className="segment" aria-current={tweaks.numStyle === "mono"} onClick={() => onChange({ numStyle: "mono" })}>Mono</button>
-            <button className="segment" aria-current={tweaks.numStyle === "display"} onClick={() => onChange({ numStyle: "display" })}>Display</button>
-          </div>
+    <>
+      <div className="mt-3">
+        <div className="label">Palette</div>
+        <div className="segmented">
+          {themes.map((theme) => (
+            <button key={theme.value} className="segment" aria-current={tweaks.theme === theme.value} onClick={() => onChange({ theme: theme.value })}>
+              {theme.label}
+            </button>
+          ))}
         </div>
       </div>
-    </div>
+
+      <div className="mt-4">
+        <div className="label">Densité</div>
+        <div className="segmented">
+          {densities.map((density) => (
+            <button key={density.value} className="segment" aria-current={tweaks.density === density.value} onClick={() => onChange({ density: density.value })}>
+              {density.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <div className="label">Chiffres</div>
+        <div className="segmented">
+          <button className="segment" aria-current={tweaks.numStyle === "mono"} onClick={() => onChange({ numStyle: "mono" })}>Mono</button>
+          <button className="segment" aria-current={tweaks.numStyle === "display"} onClick={() => onChange({ numStyle: "display" })}>Display</button>
+        </div>
+      </div>
+    </>
   );
 }
 
