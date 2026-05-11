@@ -10,7 +10,7 @@ import {
   saveList,
 } from "./shared.jsx";
 
-export function EstimatePage({ onToast, onAddToInventory }) {
+export function EstimatePage({ inventory = [], onToast, onAddToInventory }) {
   const [photo, setPhoto] = React.useState(null); // dataURL
   const [name, setName] = React.useState("");
   const [notes, setNotes] = React.useState("");
@@ -100,6 +100,13 @@ export function EstimatePage({ onToast, onAddToInventory }) {
     const next = history.filter(h => h.id !== id);
     setHistory(next);
     saveList(STORAGE_KEYS.estimates, next);
+  };
+
+  const isInInventory = (value) => {
+    const normalized = normalizeItemName(value);
+    return inventory.some((item) =>
+      item.status !== "sold" && normalizeItemName(item.name) === normalized
+    );
   };
 
   const filtered = history.filter(h =>
@@ -232,6 +239,7 @@ export function EstimatePage({ onToast, onAddToInventory }) {
                 <HistoryRow
                   key={h.id}
                   item={h}
+                  existsInInventory={isInInventory(h.name)}
                   onDelete={() => deleteHistoryItem(h.id)}
                   onAddToInventory={() => {
                     const added = onAddToInventory({
@@ -303,7 +311,7 @@ function EstimateResult({ result, onClear, onAddToInventory }) {
   );
 }
 
-function HistoryRow({ item, onDelete, onAddToInventory }) {
+function HistoryRow({ item, existsInInventory, onDelete, onAddToInventory }) {
   const [confirm, setConfirm] = React.useState(false);
   return (
     <div className="row">
@@ -323,12 +331,13 @@ function HistoryRow({ item, onDelete, onAddToInventory }) {
         </div>
       </div>
       <button
-        className="btn btn-soft btn-sm"
+        className="btn btn-soft btn-sm icon-btn"
         onClick={onAddToInventory}
-        aria-label="Ajouter à l'inventaire"
-        style={{ padding: "0 10px" }}
+        disabled={existsInInventory}
+        aria-label={existsInInventory ? "Déjà dans l'inventaire" : "Ajouter à l'inventaire"}
+        title={existsInInventory ? "Déjà dans l'inventaire" : "Ajouter à l'inventaire"}
       >
-        <Icon.Plus />
+        {existsInInventory ? <Icon.Check /> : <Icon.Plus />}
       </button>
       {confirm ? (
         <button className="btn btn-sm btn-danger" onClick={onDelete}>OK ?</button>
@@ -344,6 +353,15 @@ function HistoryRow({ item, onDelete, onAddToInventory }) {
       )}
     </div>
   );
+}
+
+function normalizeItemName(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 if (typeof window !== "undefined") window.EstimatePage = EstimatePage;

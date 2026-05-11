@@ -136,7 +136,11 @@ function App() {
     <>
       <div data-screen-label={screenLabel} style={{ display: "contents" }}>
         {tab === "estimate" && (
-          <EstimatePage onToast={showToast} onAddToInventory={addToInventory} />
+          <EstimatePage
+            inventory={inventory}
+            onToast={showToast}
+            onAddToInventory={addToInventory}
+          />
         )}
         {tab === "inventory" && (
           <InventoryPage
@@ -173,8 +177,8 @@ function App() {
 
       {toast && <div className="toast">{toast}</div>}
 
-      <div className={`sync-badge sync-${syncState}`}>
-        {syncState === "online" ? "DB sync OK" : syncState === "syncing" ? "DB sync..." : syncState === "error" ? "DB sync erreur" : "DB sync off"}
+      <div className={`sync-badge sync-${syncState}`} title={getSyncLabel(syncState)} aria-label={getSyncLabel(syncState)}>
+        <span className="sync-dot" />
       </div>
 
       <button className="settings-fab" onClick={() => setSettingsOpen(true)} aria-label="Réglages">
@@ -190,6 +194,13 @@ function App() {
       )}
     </>
   );
+}
+
+function getSyncLabel(syncState) {
+  if (syncState === "online") return "Base de données synchronisée";
+  if (syncState === "syncing") return "Synchronisation base en cours";
+  if (syncState === "error") return "Erreur de synchronisation base";
+  return "Synchronisation base désactivée";
 }
 
 function SettingsOverlay({ tweaks, onChange, onClose }) {
