@@ -72,7 +72,7 @@ function App() {
         if (cancelled) return;
         setInventoryState(loadList(STORAGE_KEYS.inventory));
         setSyncState("online");
-        if (loaded > 0) showToast("Données Supabase synchronisées");
+        if (loaded > 0) showToast("Données synchronisées");
       })
       .catch(() => {
         if (!cancelled) setSyncState("error");
