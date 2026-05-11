@@ -174,7 +174,7 @@ function App() {
       {toast && <div className="toast">{toast}</div>}
 
       <div className={`sync-badge sync-${syncState}`}>
-        {syncState === "online" ? "Supabase" : syncState === "syncing" ? "Sync…" : syncState === "error" ? "Local" : "Local"}
+        {syncState === "online" ? "DB sync OK" : syncState === "syncing" ? "DB sync..." : syncState === "error" ? "DB sync erreur" : "DB sync off"}
       </div>
 
       <button className="settings-fab" onClick={() => setSettingsOpen(true)} aria-label="Réglages">
