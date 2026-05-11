@@ -190,13 +190,13 @@ export function EstimatePage({ onToast, onAddToInventory }) {
             result={result}
             onClear={reset}
             onAddToInventory={() => {
-              onAddToInventory({
+              const added = onAddToInventory({
                 name: result.name,
                 priceCents: (result.low || result.mid || 0) * 100,
                 photo: result.photo,
                 notes: result.why || "",
               });
-              onToast("Ajout\u00e9 \u00e0 l'inventaire");
+              if (added) onToast("Ajout\u00e9 \u00e0 l'inventaire");
             }}
           />
         )}
@@ -234,13 +234,13 @@ export function EstimatePage({ onToast, onAddToInventory }) {
                   item={h}
                   onDelete={() => deleteHistoryItem(h.id)}
                   onAddToInventory={() => {
-                    onAddToInventory({
+                    const added = onAddToInventory({
                       name: h.name,
                       priceCents: (h.low || h.mid || 0) * 100,
                       photo: h.photo,
                       notes: h.why || "",
                     });
-                    onToast("Ajout\u00e9 \u00e0 l'inventaire");
+                    if (added) onToast("Ajout\u00e9 \u00e0 l'inventaire");
                   }}
                 />
               ))}

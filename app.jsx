@@ -85,7 +85,24 @@ function App() {
     setTimeout(() => setToast(null), 2200);
   };
 
+  const normalizeItemName = (value) =>
+    String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+
   const addToInventory = (data) => {
+    const normalizedName = normalizeItemName(data.name || "Objet");
+    const alreadyExists = inventory.some((item) =>
+      item.status !== "sold" && normalizeItemName(item.name) === normalizedName
+    );
+    if (alreadyExists) {
+      showToast("Déjà dans l'inventaire");
+      return false;
+    }
+
     const item = {
       id: Date.now(),
       ts: Date.now(),
@@ -96,6 +113,7 @@ function App() {
       status: "available",
     };
     updateInventory([item, ...inventory]);
+    return true;
   };
 
   const sellFromInventory = (item) => {
