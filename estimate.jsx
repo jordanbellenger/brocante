@@ -20,6 +20,16 @@ export function EstimatePage({ onToast, onAddToInventory }) {
   const [search, setSearch] = React.useState("");
   const fileRef = React.useRef(null);
 
+  React.useEffect(() => {
+    const onListSaved = (event) => {
+      if (event.detail?.key === STORAGE_KEYS.estimates) {
+        setHistory(Array.isArray(event.detail.items) ? event.detail.items : loadList(STORAGE_KEYS.estimates));
+      }
+    };
+    window.addEventListener("brocante:list-saved", onListSaved);
+    return () => window.removeEventListener("brocante:list-saved", onListSaved);
+  }, []);
+
   const reset = () => {
     setPhoto(null); setName(""); setNotes(""); setResult(null); setLoading(false);
   };

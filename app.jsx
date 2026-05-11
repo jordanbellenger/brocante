@@ -7,6 +7,7 @@ import { EstimatePage } from "./estimate.jsx";
 import { InventoryPage } from "./inventory.jsx";
 import { RegisterPage } from "./register.jsx";
 import { Icon, STORAGE_KEYS, loadList, saveList } from "./shared.jsx";
+import { isSupabaseConfigured, syncRemoteLists } from "./remoteStore.js";
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "theme": "forest",
@@ -29,6 +30,7 @@ function App() {
   });
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [inventory, setInventoryState] = React.useState(() => loadList(STORAGE_KEYS.inventory));
+  const [syncState, setSyncState] = React.useState(() => isSupabaseConfigured ? "syncing" : "local");
   const [prefillSale, setPrefillSale] = React.useState(null);
 
   const updateInventory = (next) => {
@@ -51,6 +53,32 @@ function App() {
   React.useEffect(() => {
     try { localStorage.setItem("brocante.tab", tab); } catch (e) {}
   }, [tab]);
+
+  React.useEffect(() => {
+    const onListSaved = (event) => {
+      if (event.detail?.key === STORAGE_KEYS.inventory) {
+        setInventoryState(Array.isArray(event.detail.items) ? event.detail.items : loadList(STORAGE_KEYS.inventory));
+      }
+    };
+    window.addEventListener("brocante:list-saved", onListSaved);
+    return () => window.removeEventListener("brocante:list-saved", onListSaved);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let cancelled = false;
+    syncRemoteLists(Object.values(STORAGE_KEYS))
+      .then(({ loaded }) => {
+        if (cancelled) return;
+        setInventoryState(loadList(STORAGE_KEYS.inventory));
+        setSyncState("online");
+        if (loaded > 0) showToast("Données Supabase synchronisées");
+      })
+      .catch(() => {
+        if (!cancelled) setSyncState("error");
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -126,6 +154,10 @@ function App() {
       </nav>
 
       {toast && <div className="toast">{toast}</div>}
+
+      <div className={`sync-badge sync-${syncState}`}>
+        {syncState === "online" ? "Supabase" : syncState === "syncing" ? "Sync…" : syncState === "error" ? "Local" : "Local"}
+      </div>
 
       <button className="settings-fab" onClick={() => setSettingsOpen(true)} aria-label="Réglages">
         <Icon.Edit />

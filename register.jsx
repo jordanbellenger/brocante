@@ -23,6 +23,16 @@ export function RegisterPage({ onToast, prefill, onPrefillConsumed, onItemSold }
   const [showHistory, setShowHistory] = React.useState(false);
   const [linkedItemId, setLinkedItemId] = React.useState(null);
 
+  React.useEffect(() => {
+    const onListSaved = (event) => {
+      if (event.detail?.key === STORAGE_KEYS.sales) {
+        setSales(Array.isArray(event.detail.items) ? event.detail.items : loadList(STORAGE_KEYS.sales));
+      }
+    };
+    window.addEventListener("brocante:list-saved", onListSaved);
+    return () => window.removeEventListener("brocante:list-saved", onListSaved);
+  }, []);
+
   // Pre-fill from inventory
   React.useEffect(() => {
     if (prefill) {

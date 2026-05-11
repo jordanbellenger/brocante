@@ -1,6 +1,7 @@
 /* === Brocante — shared helpers === */
 
 import React from "react";
+import { saveRemoteList } from "./remoteStore.js";
 
 export const STORAGE_KEYS = {
   sales: "brocante.sales.v1",
@@ -17,7 +18,13 @@ export function loadList(key) {
   } catch (e) { return []; }
 }
 export function saveList(key, items) {
-  try { localStorage.setItem(key, JSON.stringify(items)); } catch (e) {}
+  try {
+    localStorage.setItem(key, JSON.stringify(items));
+    window.dispatchEvent(new CustomEvent("brocante:list-saved", { detail: { key, items } }));
+    saveRemoteList(key, items).catch((error) => {
+      console.warn("Supabase sync failed", error);
+    });
+  } catch (e) {}
 }
 
 export function formatEur(cents) {
