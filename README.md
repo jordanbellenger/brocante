@@ -45,13 +45,13 @@ Ne préfixe jamais la clé OpenAI avec `VITE_`.
 ### Supabase
 
 1. Crée un projet Supabase.
-2. Active Auth email/password.
+2. Active Auth email/password et désactive les inscriptions publiques si l'app doit rester privée.
 3. Exécute `supabase/schema.sql` dans le SQL editor.
 4. Dans Supabase Auth, ajoute l'URL locale et l'URL Vercel aux redirect URLs :
    - `http://127.0.0.1:5173`
    - `https://ton-projet.vercel.app`
 
-Avec Supabase configuré, chaque utilisateur se connecte, puis crée ou rejoint une équipe. Les listes `inventaire`, `ventes` et `estimations` sont isolées par équipe.
+Avec Supabase configuré, chaque utilisateur se connecte, puis crée ou rejoint une équipe. Les listes `inventaire`, `ventes` et `estimations` sont isolées par équipe. L'app n'affiche pas de création de compte publique : crée ou invite les utilisateurs depuis Supabase Auth.
 
 ### Déployer sur Vercel
 
@@ -118,13 +118,13 @@ Never expose the OpenAI key with a `VITE_` prefix.
 ### Supabase
 
 1. Create a Supabase project.
-2. Enable email/password Auth.
+2. Enable email/password Auth and disable public signups if the app should stay private.
 3. Run `supabase/schema.sql` in the SQL editor.
 4. In Supabase Auth, add both local and Vercel URLs to redirect URLs:
    - `http://127.0.0.1:5173`
    - `https://your-project.vercel.app`
 
-When Supabase is configured, each user signs in, then creates or joins a team. `inventory`, `sales`, and `estimates` lists are isolated by team.
+When Supabase is configured, each user signs in, then creates or joins a team. `inventory`, `sales`, and `estimates` lists are isolated by team. The app does not expose public signup: create or invite users from Supabase Auth.
 
 ### Deploy to Vercel
 

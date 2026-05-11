@@ -39,22 +39,6 @@ export async function signIn(email, password) {
   return data.session;
 }
 
-export async function signUp(email, password, displayName) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { display_name: displayName || email } },
-  });
-  if (error) throw error;
-  if (data.user) await ensureProfile(displayName || email);
-  return data.session;
-}
-
-export async function resendSignupEmail(email) {
-  const { error } = await supabase.auth.resend({ type: "signup", email });
-  if (error) throw error;
-}
-
 export async function signOut() {
   setActiveTeamId("");
   const { error } = await supabase.auth.signOut();

@@ -16,11 +16,9 @@ import {
   isSupabaseConfigured,
   joinTeam,
   onAuthChange,
-  resendSignupEmail,
   setActiveTeamId as persistActiveTeamId,
   signIn,
   signOut,
-  signUp,
   syncRemoteLists,
 } from "./remoteStore.js";
 
@@ -344,34 +342,19 @@ function getSyncLabel(syncState) {
 }
 
 function AuthScreen({ onToast, onSignedIn }) {
-  const [mode, setMode] = React.useState("signin");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [displayName, setDisplayName] = React.useState("");
-  const [confirmationEmail, setConfirmationEmail] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const [resending, setResending] = React.useState(false);
 
   const submit = async (event) => {
     event.preventDefault();
     setErrorMessage("");
     setLoading(true);
     try {
-      if (mode === "signin") {
-        const nextSession = await signIn(email, password);
-        onSignedIn(nextSession);
-        onToast("Connecté");
-      } else {
-        const nextSession = await signUp(email, password, displayName || email);
-        if (nextSession) {
-          onSignedIn(nextSession);
-          onToast("Compte créé");
-        } else {
-          setConfirmationEmail(email);
-          onToast("Confirme ton email");
-        }
-      }
+      const nextSession = await signIn(email, password);
+      onSignedIn(nextSession);
+      onToast("Connecté");
     } catch (error) {
       setErrorMessage(getAuthErrorMessage(error));
       onToast("Action impossible");
@@ -380,73 +363,14 @@ function AuthScreen({ onToast, onSignedIn }) {
     }
   };
 
-  const resendConfirmation = async () => {
-    setErrorMessage("");
-    setResending(true);
-    try {
-      await resendSignupEmail(confirmationEmail);
-      onToast("Email renvoyé");
-    } catch (error) {
-      setErrorMessage(getAuthErrorMessage(error));
-      onToast("Envoi impossible");
-    } finally {
-      setResending(false);
-    }
-  };
-
-  if (confirmationEmail) {
-    return (
-      <div className="auth-screen">
-        <div className="auth-card">
-          <h1>Email envoyé</h1>
-          <p className="auth-notice">
-            Un email de confirmation a été envoyé.
-          </p>
-          <p className="muted mt-2">
-            Vérifie la boîte de réception de {confirmationEmail}, puis reviens ici pour te connecter.
-          </p>
-          {errorMessage && (
-            <div className="form-error mt-4" role="alert">
-              {errorMessage}
-            </div>
-          )}
-          <button className="btn btn-primary btn-block btn-xl mt-4" onClick={resendConfirmation} disabled={resending}>
-            {resending ? <><div className="spinner" /> Envoi…</> : "Renvoyer l'email"}
-          </button>
-          <button
-            type="button"
-            className="btn btn-ghost btn-block mt-3"
-            onClick={() => {
-              setMode("signin");
-              setErrorMessage("");
-              setConfirmationEmail("");
-            }}
-          >
-            Aller à la connexion
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="auth-screen">
       <form className="auth-card" onSubmit={submit}>
         <h1>Brocante</h1>
-        <p className="muted">
-          {mode === "signup"
-            ? "Tu recevras un email de confirmation avant la première connexion."
-            : "Connecte-toi pour partager un inventaire par équipe."}
-        </p>
+        <p className="muted">Connecte-toi pour partager un inventaire par équipe.</p>
         {errorMessage && (
           <div className="form-error mt-4" role="alert">
             {errorMessage}
-          </div>
-        )}
-        {mode === "signup" && (
-          <div className="mt-4">
-            <label className="label">Nom</label>
-            <input className="input" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Ton nom" />
           </div>
         )}
         <div className="mt-4">
@@ -458,18 +382,7 @@ function AuthScreen({ onToast, onSignedIn }) {
           <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Minimum 6 caractères" required />
         </div>
         <button className="btn btn-primary btn-block btn-xl mt-4" disabled={loading}>
-          {loading ? <><div className="spinner" /> Patiente…</> : mode === "signin" ? "Se connecter" : "Créer le compte"}
-        </button>
-        <button
-          type="button"
-          className="btn btn-ghost btn-block mt-3"
-          onClick={() => {
-            setConfirmationEmail("");
-            setErrorMessage("");
-            setMode(mode === "signin" ? "signup" : "signin");
-          }}
-        >
-          {mode === "signin" ? "Créer un compte" : "J'ai déjà un compte"}
+          {loading ? <><div className="spinner" /> Patiente…</> : "Se connecter"}
         </button>
       </form>
     </div>

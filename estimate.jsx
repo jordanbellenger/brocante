@@ -1,6 +1,7 @@
 /* === Brocante — page Estimer === */
 
 import React from "react";
+import { isSupabaseConfigured, supabase } from "./supabaseClient.js";
 import {
   STORAGE_KEYS,
   Icon,
@@ -61,9 +62,15 @@ export function EstimatePage({ inventory = [], onToast, onAddToInventory }) {
     try {
       let parsed;
       try {
+        const headers = { "Content-Type": "application/json" };
+        if (isSupabaseConfigured) {
+          const { data } = await supabase.auth.getSession();
+          const token = data.session?.access_token;
+          if (token) headers.Authorization = `Bearer ${token}`;
+        }
         const response = await fetch("/api/estimate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify({ photo, name, notes }),
         });
         if (!response.ok) throw new Error("OpenAI indisponible");

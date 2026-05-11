@@ -1,6 +1,7 @@
 import http from "node:http";
 import { parse } from "node:url";
 import { createServer as createViteServer, loadEnv } from "vite";
+import { requireAuthenticatedUser } from "./authServer.js";
 import { estimateWithOpenAI } from "./openaiEstimate.js";
 
 const env = loadEnv(process.env.NODE_ENV || "development", process.cwd(), "");
@@ -39,6 +40,7 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "POST" && pathname === "/api/estimate") {
     try {
+      await requireAuthenticatedUser(req.headers.authorization);
       const body = await readJson(req);
       const estimate = await estimateWithOpenAI(body);
       res.writeHead(200, { "Content-Type": "application/json" });
